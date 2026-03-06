@@ -132,10 +132,13 @@ class RecordDialog(QDialog):
                 for (col, (widget, pk)), col_info in zip(self.widgets.items(), self.columns):
                     if pk and widget.isEnabled() is False and self._is_integer(col_info[2]):
                         continue
-                    columns.append(col)
+                    columns.append(quote_ident(col))
                     values.append(self._get_widget_value(widget))
                 placeholders = ", ".join(["?"] * len(columns))
-                sql = f"INSERT INTO {self.table_name} ({', '.join(columns)}) VALUES ({placeholders})"
+                sql = (
+                    f"INSERT INTO {quote_ident(self.table_name)} "
+                    f"({', '.join(columns)}) VALUES ({placeholders})"
+                )
                 cursor.execute(sql, values)
             else:
                 set_parts = []
@@ -146,12 +149,15 @@ class RecordDialog(QDialog):
                     _cid, col_name, col_type, _notnull, _default, pk = col_info
                     widget, _ = self.widgets[col_name]
                     if pk:
-                        where_parts.append(f"{col_name}=?")
+                        where_parts.append(f"{quote_ident(col_name)}=?")
                         where_values.append(self.row[index])
                     else:
-                        set_parts.append(f"{col_name}=?")
+                        set_parts.append(f"{quote_ident(col_name)}=?")
                         values.append(self._get_widget_value(widget))
-                sql = f"UPDATE {self.table_name} SET {', '.join(set_parts)} WHERE {' AND '.join(where_parts)}"
+                sql = (
+                    f"UPDATE {quote_ident(self.table_name)} "
+                    f"SET {', '.join(set_parts)} WHERE {' AND '.join(where_parts)}"
+                )
                 cursor.execute(sql, values + where_values)
             self.conn.commit()
         except sqlite3.Error as exc:
@@ -283,13 +289,16 @@ class MainWindow(QMainWindow):
         if pk_columns:
             for col in pk_columns:
                 index = col[0]
-                where_parts.append(f"{col[1]}=?")
+                where_parts.append(f"{quote_ident(col[1])}=?")
                 values.append(row[index])
         else:
             for index, col in enumerate(self.table_columns):
-                where_parts.append(f"{col[1]}=?")
+                where_parts.append(f"{quote_ident(col[1])}=?")
                 values.append(row[index])
-        sql = f"DELETE FROM {self.table_name} WHERE {' AND '.join(where_parts)}"
+        sql = (
+            f"DELETE FROM {quote_ident(self.table_name)} "
+            f"WHERE {' AND '.join(where_parts)}"
+        )
         try:
             cursor.execute(sql, values)
             self.conn.commit()

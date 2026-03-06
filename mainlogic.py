@@ -245,7 +245,6 @@ class MainWindow(QMainWindow):
         self.ui.btnAdd.setShortcut("Ctrl+N")
         self.ui.btnEdit.setShortcut("Ctrl+E")
         self.ui.btnDelete.setShortcut("Del")
-        self.ui.btnRefresh.setShortcut("F5")
 
     def _set_logo(self):
         logo_path = IMAGES_DIR / "perfumery_01.png"
@@ -258,7 +257,6 @@ class MainWindow(QMainWindow):
         self.ui.btnAdd.clicked.connect(self.add_record)
         self.ui.btnEdit.clicked.connect(self.edit_record)
         self.ui.btnDelete.clicked.connect(self.delete_record)
-        self.ui.btnRefresh.clicked.connect(self.reload_tables)
         self.ui.tableData.cellDoubleClicked.connect(lambda _r, _c: self.edit_record())
 
     def _load_tables(self):
@@ -268,18 +266,6 @@ class MainWindow(QMainWindow):
         self.ui.cbTables.addItems(tables)
         self.ui.cbTables.blockSignals(False)
         if tables:
-            self.select_table(tables[0])
-
-    def reload_tables(self):
-        current = self.ui.cbTables.currentText()
-        tables = list_tables(self.conn)
-        self.ui.cbTables.blockSignals(True)
-        self.ui.cbTables.clear()
-        self.ui.cbTables.addItems(tables)
-        self.ui.cbTables.blockSignals(False)
-        if current in tables:
-            self.select_table(current)
-        elif tables:
             self.select_table(tables[0])
 
     def select_table(self, table_name):
@@ -298,9 +284,6 @@ class MainWindow(QMainWindow):
             QMessageBox.critical(self, "Ошибка", f"Не удалось загрузить: {exc}", QMessageBox.Ok)
             self.table_rows = []
         self._render_table()
-        self.statusBar().showMessage(
-            f"Таблица: {self.table_name} | Записей: {len(self.table_rows)}"
-        )
 
     def _render_table(self):
         table = self.ui.tableData

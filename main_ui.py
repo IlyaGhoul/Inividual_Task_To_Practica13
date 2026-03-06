@@ -54,9 +54,6 @@ class Ui_MainWindow(object):
         self.btnDelete = QtWidgets.QPushButton(self.centralwidget)
         self.btnDelete.setObjectName("btnDelete")
         self.controlsLayout.addWidget(self.btnDelete)
-        self.btnRefresh = QtWidgets.QPushButton(self.centralwidget)
-        self.btnRefresh.setObjectName("btnRefresh")
-        self.controlsLayout.addWidget(self.btnRefresh)
         self.mainLayout.addLayout(self.controlsLayout)
         self.tableData = QtWidgets.QTableWidget(self.centralwidget)
         self.tableData.setColumnCount(2)
@@ -70,9 +67,6 @@ class Ui_MainWindow(object):
         self.tableData.verticalHeader().setVisible(False)
         self.mainLayout.addWidget(self.tableData)
         MainWindow.setCentralWidget(self.centralwidget)
-        self.statusbar = QtWidgets.QStatusBar(MainWindow)
-        self.statusbar.setObjectName("statusbar")
-        MainWindow.setStatusBar(self.statusbar)
 
         self.retranslateUi(MainWindow)
         QtCore.QMetaObject.connectSlotsByName(MainWindow)
@@ -85,7 +79,6 @@ class Ui_MainWindow(object):
         self.btnAdd.setText(_translate("MainWindow", "Добавить запись"))
         self.btnEdit.setText(_translate("MainWindow", "Изменить"))
         self.btnDelete.setText(_translate("MainWindow", "Удалить"))
-        self.btnRefresh.setText(_translate("MainWindow", "Обновить"))
 
 
 if __name__ == "__main__":

@@ -249,7 +249,7 @@ class MainWindow(QMainWindow):
         self.ui.btnDelete.setShortcut("Del")
 
     def _set_logo(self):
-        logo_path = IMAGES_DIR / "perfumery_01.png"
+        logo_path = BASE_DIR / "photobase.jpg"
         if logo_path.exists():
             self.ui.labelLogo.setPixmap(QPixmap(str(logo_path)))
             self.setWindowIcon(QIcon(str(logo_path)))

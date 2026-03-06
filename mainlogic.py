@@ -197,3 +197,44 @@ class MainWindow(QMainWindow):
         self.ui.btnEdit.clicked.connect(self.edit_record)
         self.ui.btnDelete.clicked.connect(self.delete_record)
         self.ui.tableData.cellDoubleClicked.connect(lambda _r, _c: self.edit_record())
+
+    def _load_tables(self):
+        self.ui.cbTables.blockSignals(True)
+        self.ui.cbTables.clear()
+        tables = list_tables(self.conn)
+        self.ui.cbTables.addItems(tables)
+        self.ui.cbTables.blockSignals(False)
+        if tables:
+            self.select_table(tables[0])
+
+    def select_table(self, table_name):
+        if not table_name:
+            return
+        self.table_name = table_name
+        self.table_columns = table_info(self.conn, table_name)
+        self.refresh_table()
+
+    def refresh_table(self):
+        if not self.table_name:
+            return
+        self.table_rows = fetch_rows(self.conn, self.table_name)
+        self._render_table()
+
+    def _render_table(self):
+        table = self.ui.tableData
+        table.setRowCount(len(self.table_rows))
+        for row_index, row in enumerate(self.table_rows):
+            item_id = QTableWidgetItem()
+            if len(row) > 0:
+                item_id.setText(str(row[0]))
+            table.setItem(row_index, 0, item_id)
+
+            parts = []
+            for col_info, value in zip(self.table_columns, row):
+                name = col_info[1]
+                text_value = "" if value is None else str(value)
+                parts.append(f\"<b>{name}</b>: {text_value}\")
+            label = QLabel(\"<br>\".join(parts))
+            label.setTextFormat(Qt.RichText)
+            label.setWordWrap(True)
+            table.setCellWidget(row_index, 1, label)

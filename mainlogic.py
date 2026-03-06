@@ -236,6 +236,9 @@ class MainWindow(QMainWindow):
             return
         self.table_rows = fetch_rows(self.conn, self.table_name)
         self._render_table()
+        self.statusBar().showMessage(
+            f"Таблица: {self.table_name} | Записей: {len(self.table_rows)}"
+        )
 
     def _render_table(self):
         table = self.ui.tableData

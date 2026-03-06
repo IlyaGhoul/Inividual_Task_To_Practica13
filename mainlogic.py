@@ -8,6 +8,8 @@ from PyQt5.QtGui import QFont, QIcon, QPixmap
 from PyQt5.QtWidgets import (
     QApplication,
     QDialog,
+    QDialogButtonBox,
+    QFormLayout,
     QHeaderView,
     QLabel,
     QLineEdit,
@@ -16,6 +18,7 @@ from PyQt5.QtWidgets import (
     QSpinBox,
     QDoubleSpinBox,
     QTableWidgetItem,
+    QVBoxLayout,
 )
 
 from main_ui import Ui_MainWindow
@@ -164,6 +167,32 @@ class RecordDialog(QDialog):
             QMessageBox.critical(self, "Ошибка", f"Не удалось сохранить: {exc}", QMessageBox.Ok)
             return
         self.accept()
+
+
+class LoginDialog(QDialog):
+    def __init__(self, parent=None):
+        super().__init__(parent)
+        self.setWindowTitle("Вход")
+
+        layout = QVBoxLayout(self)
+        form = QFormLayout()
+        self.leLogin = QLineEdit()
+        self.lePassword = QLineEdit()
+        self.lePassword.setEchoMode(QLineEdit.Password)
+        form.addRow("Логин", self.leLogin)
+        form.addRow("Пароль", self.lePassword)
+        layout.addLayout(form)
+
+        buttons = QDialogButtonBox(QDialogButtonBox.Ok | QDialogButtonBox.Cancel)
+        buttons.accepted.connect(self.check_login)
+        buttons.rejected.connect(self.reject)
+        layout.addWidget(buttons)
+
+    def check_login(self):
+        if self.leLogin.text().strip() == "admin" and self.lePassword.text() == "1234":
+            self.accept()
+            return
+        QMessageBox.critical(self, "Ошибка", "Неверный логин или пароль.", QMessageBox.Ok)
 
 
 class MainWindow(QMainWindow):
@@ -355,6 +384,10 @@ def main():
     if not DB_PATH.exists():
         QMessageBox.critical(None, "Ошибка", "Файл базы данных не найден.", QMessageBox.Ok)
         sys.exit(1)
+
+    login = LoginDialog()
+    if login.exec_() != QDialog.Accepted:
+        sys.exit(0)
 
     window = MainWindow()
     window.show()

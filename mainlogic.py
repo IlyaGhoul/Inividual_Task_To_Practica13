@@ -286,3 +286,16 @@ class MainWindow(QMainWindow):
             self.refresh_table()
         except sqlite3.Error as exc:
             QMessageBox.critical(self, "Ошибка", f"Не удалось удалить: {exc}", QMessageBox.Ok)
+
+
+def main():
+    app = QApplication(sys.argv)
+    app.setFont(QFont("Times New Roman", 11))
+
+    window = MainWindow()
+    window.show()
+    sys.exit(app.exec_())
+
+
+if __name__ == "__main__":
+    main()

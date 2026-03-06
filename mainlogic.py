@@ -30,6 +30,10 @@ def connect_db():
     return sqlite3.connect(str(DB_PATH))
 
 
+def quote_ident(name):
+    return '"' + name.replace('"', '""') + '"'
+
+
 def list_tables(conn):
     cursor = conn.cursor()
     cursor.execute(
@@ -42,13 +46,13 @@ def list_tables(conn):
 
 def table_info(conn, table_name):
     cursor = conn.cursor()
-    cursor.execute(f"PRAGMA table_info({table_name})")
+    cursor.execute(f"PRAGMA table_info({quote_ident(table_name)})")
     return cursor.fetchall()
 
 
 def fetch_rows(conn, table_name):
     cursor = conn.cursor()
-    cursor.execute(f"SELECT * FROM {table_name}")
+    cursor.execute(f"SELECT * FROM {quote_ident(table_name)}")
     return cursor.fetchall()
 
 

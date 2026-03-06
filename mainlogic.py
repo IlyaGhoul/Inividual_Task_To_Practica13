@@ -202,6 +202,7 @@ class MainWindow(QMainWindow):
         title_font = QFont("Times New Roman", 14)
         title_font.setBold(True)
         self.ui.labelTitle.setFont(title_font)
+        self.ui.cbTables.setMinimumWidth(200)
 
     def _apply_shortcuts(self):
         self.ui.btnAdd.setShortcut("Ctrl+N")

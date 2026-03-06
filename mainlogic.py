@@ -154,3 +154,46 @@ class RecordDialog(QDialog):
             QMessageBox.critical(self, \"Ошибка\", f\"Не удалось сохранить: {exc}\", QMessageBox.Ok)
             return
         self.accept()
+
+
+class MainWindow(QMainWindow):
+    def __init__(self):
+        super().__init__()
+        self.ui = Ui_MainWindow()
+        self.ui.setupUi(self)
+
+        self.conn = connect_db()
+        self.table_name = None
+        self.table_columns = []
+        self.table_rows = []
+
+        self._setup_table()
+        self._set_logo()
+        self._connect_actions()
+        self._load_tables()
+
+    def closeEvent(self, event):
+        try:
+            self.conn.close()
+        finally:
+            super().closeEvent(event)
+
+    def _setup_table(self):
+        table = self.ui.tableData
+        table.setIconSize(QSize(90, 90))
+        table.setColumnWidth(0, 120)
+        table.horizontalHeader().setSectionResizeMode(1, QHeaderView.Stretch)
+        table.verticalHeader().setDefaultSectionSize(100)
+
+    def _set_logo(self):
+        logo_path = IMAGES_DIR / "perfumery_01.png"
+        if logo_path.exists():
+            self.ui.labelLogo.setPixmap(QPixmap(str(logo_path)))
+            self.setWindowIcon(QIcon(str(logo_path)))
+
+    def _connect_actions(self):
+        self.ui.cbTables.currentTextChanged.connect(self.select_table)
+        self.ui.btnAdd.clicked.connect(self.add_record)
+        self.ui.btnEdit.clicked.connect(self.edit_record)
+        self.ui.btnDelete.clicked.connect(self.delete_record)
+        self.ui.tableData.cellDoubleClicked.connect(lambda _r, _c: self.edit_record())

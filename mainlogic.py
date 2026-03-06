@@ -183,6 +183,9 @@ class LoginDialog(QDialog):
         super().__init__(parent)
         self.setWindowTitle("Вход")
         self.resize(360, 220)
+        icon_path = BASE_DIR / "photobase.jpg"
+        if icon_path.exists():
+            self.setWindowIcon(QIcon(str(icon_path)))
 
         layout = QVBoxLayout(self)
         form = QFormLayout()

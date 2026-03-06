@@ -345,6 +345,10 @@ def main():
     app = QApplication(sys.argv)
     app.setFont(QFont("Times New Roman", 11))
 
+    if not DB_PATH.exists():
+        QMessageBox.critical(None, "Ошибка", "Файл базы данных не найден.", QMessageBox.Ok)
+        sys.exit(1)
+
     window = MainWindow()
     window.show()
     sys.exit(app.exec_())

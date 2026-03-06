@@ -37,6 +37,14 @@ def quote_ident(name):
     return '"' + name.replace('"', '""') + '"'
 
 
+def resolve_image_path(path_value):
+    if not path_value:
+        return ""
+    if os.path.isabs(path_value):
+        return path_value
+    return str((BASE_DIR / "БД" / path_value).resolve())
+
+
 def list_tables(conn):
     cursor = conn.cursor()
     cursor.execute(
@@ -297,22 +305,39 @@ class MainWindow(QMainWindow):
     def _render_table(self):
         table = self.ui.tableData
         table.setRowCount(len(self.table_rows))
+        is_perfumery = (self.table_name or "").lower() == "perfumery"
+        image_index = None
+        if is_perfumery:
+            for idx, col_info in enumerate(self.table_columns):
+                if col_info[1].lower() == "imagepath":
+                    image_index = idx
+                    break
         for row_index, row in enumerate(self.table_rows):
             item_id = QTableWidgetItem()
-            if len(row) > 0:
+            if is_perfumery and image_index is not None:
+                icon_path = resolve_image_path(row[image_index])
+                if icon_path and os.path.exists(icon_path):
+                    item_id.setIcon(QIcon(icon_path))
+                elif len(row) > 0:
+                    item_id.setText(str(row[0]))
+            elif len(row) > 0:
                 item_id.setText(str(row[0]))
             table.setItem(row_index, 0, item_id)
 
             parts = []
             for col_info, value in zip(self.table_columns, row):
                 name = col_info[1]
+                if is_perfumery and name.lower() == "imagepath":
+                    continue
                 text_value = self._format_value(col_info, value)
                 parts.append(f"<b>{name}</b>: {text_value}")
             label = QLabel("<br>".join(parts))
             label.setTextFormat(Qt.RichText)
             label.setWordWrap(True)
             table.setCellWidget(row_index, 1, label)
-        table.resizeRowsToContents()
+            table.resizeRowToContents(row_index)
+            if table.rowHeight(row_index) < 100:
+                table.setRowHeight(row_index, 100)
 
     def _format_value(self, col_info, value):
         if value is None:

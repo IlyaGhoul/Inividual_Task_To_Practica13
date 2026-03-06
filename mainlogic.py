@@ -272,12 +272,22 @@ class MainWindow(QMainWindow):
             parts = []
             for col_info, value in zip(self.table_columns, row):
                 name = col_info[1]
-                text_value = "" if value is None else str(value)
+                text_value = self._format_value(col_info, value)
                 parts.append(f"<b>{name}</b>: {text_value}")
             label = QLabel("<br>".join(parts))
             label.setTextFormat(Qt.RichText)
             label.setWordWrap(True)
             table.setCellWidget(row_index, 1, label)
+
+    def _format_value(self, col_info, value):
+        if value is None:
+            return ""
+        name = col_info[1].lower()
+        col_type = col_info[2]
+        if value in (0, 1) and RecordDialog._is_integer(col_type):
+            if name.startswith("is") or name.startswith("has") or "special" in name or "flag" in name:
+                return "Да" if value == 1 else "Нет"
+        return str(value)
 
     def _current_row(self):
         row_index = self.ui.tableData.currentRow()

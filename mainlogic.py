@@ -168,6 +168,7 @@ class MainWindow(QMainWindow):
         self.table_rows = []
 
         self._setup_table()
+        self._apply_styles()
         self._set_logo()
         self._connect_actions()
         self._load_tables()
@@ -184,6 +185,11 @@ class MainWindow(QMainWindow):
         table.setColumnWidth(0, 120)
         table.horizontalHeader().setSectionResizeMode(1, QHeaderView.Stretch)
         table.verticalHeader().setDefaultSectionSize(100)
+
+    def _apply_styles(self):
+        title_font = QFont("Times New Roman", 14)
+        title_font.setBold(True)
+        self.ui.labelTitle.setFont(title_font)
 
     def _set_logo(self):
         logo_path = IMAGES_DIR / "perfumery_01.png"

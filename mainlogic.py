@@ -142,16 +142,16 @@ class RecordDialog(QDialog):
                     _cid, col_name, col_type, _notnull, _default, pk = col_info
                     widget, _ = self.widgets[col_name]
                     if pk:
-                        where_parts.append(f\"{col_name}=?\")
+                        where_parts.append(f"{col_name}=?")
                         where_values.append(self.row[index])
                     else:
-                        set_parts.append(f\"{col_name}=?\")
+                        set_parts.append(f"{col_name}=?")
                         values.append(self._get_widget_value(widget))
-                sql = f\"UPDATE {self.table_name} SET {', '.join(set_parts)} WHERE {' AND '.join(where_parts)}\"
+                sql = f"UPDATE {self.table_name} SET {', '.join(set_parts)} WHERE {' AND '.join(where_parts)}"
                 cursor.execute(sql, values + where_values)
             self.conn.commit()
         except sqlite3.Error as exc:
-            QMessageBox.critical(self, \"Ошибка\", f\"Не удалось сохранить: {exc}\", QMessageBox.Ok)
+            QMessageBox.critical(self, "Ошибка", f"Не удалось сохранить: {exc}", QMessageBox.Ok)
             return
         self.accept()
 
@@ -233,8 +233,56 @@ class MainWindow(QMainWindow):
             for col_info, value in zip(self.table_columns, row):
                 name = col_info[1]
                 text_value = "" if value is None else str(value)
-                parts.append(f\"<b>{name}</b>: {text_value}\")
-            label = QLabel(\"<br>\".join(parts))
+                parts.append(f"<b>{name}</b>: {text_value}")
+            label = QLabel("<br>".join(parts))
             label.setTextFormat(Qt.RichText)
             label.setWordWrap(True)
             table.setCellWidget(row_index, 1, label)
+
+    def _current_row(self):
+        row_index = self.ui.tableData.currentRow()
+        if row_index < 0 or row_index >= len(self.table_rows):
+            return None
+        return self.table_rows[row_index]
+
+    def add_record(self):
+        if not self.table_name:
+            return
+        dialog = RecordDialog(self.conn, self.table_name, self.table_columns, None, self)
+        if dialog.exec_() == QDialog.Accepted:
+            self.refresh_table()
+
+    def edit_record(self):
+        row = self._current_row()
+        if row is None:
+            QMessageBox.information(self, "Информация", "Выберите запись.", QMessageBox.Ok)
+            return
+        dialog = RecordDialog(self.conn, self.table_name, self.table_columns, row, self)
+        if dialog.exec_() == QDialog.Accepted:
+            self.refresh_table()
+
+    def delete_record(self):
+        row = self._current_row()
+        if row is None:
+            QMessageBox.information(self, "Информация", "Выберите запись.", QMessageBox.Ok)
+            return
+        cursor = self.conn.cursor()
+        pk_columns = [c for c in self.table_columns if c[5] == 1]
+        where_parts = []
+        values = []
+        if pk_columns:
+            for col in pk_columns:
+                index = col[0]
+                where_parts.append(f"{col[1]}=?")
+                values.append(row[index])
+        else:
+            for index, col in enumerate(self.table_columns):
+                where_parts.append(f"{col[1]}=?")
+                values.append(row[index])
+        sql = f"DELETE FROM {self.table_name} WHERE {' AND '.join(where_parts)}"
+        try:
+            cursor.execute(sql, values)
+            self.conn.commit()
+            self.refresh_table()
+        except sqlite3.Error as exc:
+            QMessageBox.critical(self, "Ошибка", f"Не удалось удалить: {exc}", QMessageBox.Ok)

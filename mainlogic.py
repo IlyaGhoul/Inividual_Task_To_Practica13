@@ -50,3 +50,18 @@ def fetch_rows(conn, table_name):
     cursor = conn.cursor()
     cursor.execute(f"SELECT * FROM {table_name}")
     return cursor.fetchall()
+
+
+class RecordDialog(QDialog):
+    def __init__(self, conn, table_name, columns, row=None, parent=None):
+        super().__init__(parent)
+        self.ui = Ui_RecordDialog()
+        self.ui.setupUi(self)
+        self.conn = conn
+        self.table_name = table_name
+        self.columns = columns
+        self.row = row
+        self.widgets = {}
+
+        self.ui.buttonBox.accepted.connect(self.save)
+        self.ui.buttonBox.rejected.connect(self.reject)

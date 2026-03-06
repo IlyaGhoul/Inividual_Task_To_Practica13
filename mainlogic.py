@@ -118,3 +118,39 @@ class RecordDialog(QDialog):
     def _is_real(col_type):
         t = (col_type or "").upper()
         return "REAL" in t or "FLOA" in t or "DOUB" in t
+
+    def save(self):
+        cursor = self.conn.cursor()
+        try:
+            if self.row is None:
+                columns = []
+                values = []
+                for (col, (widget, pk)), col_info in zip(self.widgets.items(), self.columns):
+                    if pk and widget.isEnabled() is False and self._is_integer(col_info[2]):
+                        continue
+                    columns.append(col)
+                    values.append(self._get_widget_value(widget))
+                placeholders = ", ".join(["?"] * len(columns))
+                sql = f"INSERT INTO {self.table_name} ({', '.join(columns)}) VALUES ({placeholders})"
+                cursor.execute(sql, values)
+            else:
+                set_parts = []
+                values = []
+                where_parts = []
+                where_values = []
+                for index, col_info in enumerate(self.columns):
+                    _cid, col_name, col_type, _notnull, _default, pk = col_info
+                    widget, _ = self.widgets[col_name]
+                    if pk:
+                        where_parts.append(f\"{col_name}=?\")
+                        where_values.append(self.row[index])
+                    else:
+                        set_parts.append(f\"{col_name}=?\")
+                        values.append(self._get_widget_value(widget))
+                sql = f\"UPDATE {self.table_name} SET {', '.join(set_parts)} WHERE {' AND '.join(where_parts)}\"
+                cursor.execute(sql, values + where_values)
+            self.conn.commit()
+        except sqlite3.Error as exc:
+            QMessageBox.critical(self, \"Ошибка\", f\"Не удалось сохранить: {exc}\", QMessageBox.Ok)
+            return
+        self.accept()

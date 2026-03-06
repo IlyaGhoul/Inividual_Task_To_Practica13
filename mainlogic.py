@@ -255,7 +255,11 @@ class MainWindow(QMainWindow):
     def refresh_table(self):
         if not self.table_name:
             return
-        self.table_rows = fetch_rows(self.conn, self.table_name)
+        try:
+            self.table_rows = fetch_rows(self.conn, self.table_name)
+        except sqlite3.Error as exc:
+            QMessageBox.critical(self, "Ошибка", f"Не удалось загрузить: {exc}", QMessageBox.Ok)
+            self.table_rows = []
         self._render_table()
         self.statusBar().showMessage(
             f"Таблица: {self.table_name} | Записей: {len(self.table_rows)}"

@@ -343,6 +343,7 @@ class MainWindow(QMainWindow):
 
 def main():
     app = QApplication(sys.argv)
+    app.setStyle("Fusion")
     app.setFont(QFont("Times New Roman", 11))
 
     if not DB_PATH.exists():

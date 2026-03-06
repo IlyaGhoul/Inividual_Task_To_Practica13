@@ -65,3 +65,56 @@ class RecordDialog(QDialog):
 
         self.ui.buttonBox.accepted.connect(self.save)
         self.ui.buttonBox.rejected.connect(self.reject)
+
+        self._build_form()
+
+    def _build_form(self):
+        for index, col in enumerate(self.columns):
+            _cid, name, col_type, _notnull, _default, pk = col
+            widget = self._create_widget(col_type)
+            self.widgets[name] = (widget, pk)
+            self.ui.formLayout.addRow(name, widget)
+
+            if self.row is not None:
+                self._set_widget_value(widget, self.row[index])
+                if pk:
+                    widget.setEnabled(False)
+            else:
+                if pk and self._is_integer(col_type):
+                    widget.setEnabled(False)
+
+    def _create_widget(self, col_type):
+        if self._is_integer(col_type):
+            widget = QSpinBox()
+            widget.setMaximum(10**9)
+            return widget
+        if self._is_real(col_type):
+            widget = QDoubleSpinBox()
+            widget.setMaximum(10**9)
+            widget.setDecimals(2)
+            return widget
+        return QLineEdit()
+
+    def _set_widget_value(self, widget, value):
+        if isinstance(widget, QSpinBox):
+            widget.setValue(int(value or 0))
+        elif isinstance(widget, QDoubleSpinBox):
+            widget.setValue(float(value or 0))
+        elif isinstance(widget, QLineEdit):
+            widget.setText("" if value is None else str(value))
+
+    def _get_widget_value(self, widget):
+        if isinstance(widget, QSpinBox):
+            return int(widget.value())
+        if isinstance(widget, QDoubleSpinBox):
+            return float(widget.value())
+        return widget.text().strip()
+
+    @staticmethod
+    def _is_integer(col_type):
+        return "INT" in (col_type or "").upper()
+
+    @staticmethod
+    def _is_real(col_type):
+        t = (col_type or "").upper()
+        return "REAL" in t or "FLOA" in t or "DOUB" in t

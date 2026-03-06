@@ -4,7 +4,7 @@ import sys
 from pathlib import Path
 
 from PyQt5.QtCore import Qt, QSize
-from PyQt5.QtGui import QFont, QIcon, QPixmap
+from PyQt5.QtGui import QColor, QFont, QIcon, QPalette, QPixmap
 from PyQt5.QtWidgets import (
     QApplication,
     QDialog,
@@ -27,7 +27,6 @@ from record_ui import Ui_RecordDialog
 BASE_DIR = Path(__file__).resolve().parent
 DB_PATH = BASE_DIR / "БД" / "parfumery.db"
 IMAGES_DIR = BASE_DIR / "БД" / "perfumery_images"
-BUTTON_COLOR = "#6BC07A"
 
 
 def connect_db():
@@ -389,18 +388,14 @@ class MainWindow(QMainWindow):
 def main():
     app = QApplication(sys.argv)
     app.setStyle("Fusion")
-    app.setFont(QFont("Times New Roman", 11))
-    app.setStyleSheet(
-        "QPushButton {"
-        f"background-color: {BUTTON_COLOR};"
-        "color: #0B0B0B;"
-        "border: 1px solid #4FA866;"
-        "border-radius: 4px;"
-        "padding: 6px 12px;"
-        "}"
-        "QPushButton:hover { background-color: #7BD089; }"
-        "QPushButton:pressed { background-color: #5CAB6E; }"
-    )
+    app.setFont(QFont("Times New Roman", 12))
+
+    pal = app.palette()
+    pal.setColor(QPalette.Window, QColor("#FFFFFF"))
+    pal.setColor(QPalette.Button, QColor("#7FFF00"))
+    pal.setColor(QPalette.Base, QColor("#00FA9A"))
+    pal.setColor(QPalette.ButtonText, QColor("#000000"))
+    app.setPalette(pal)
 
     if not DB_PATH.exists():
         QMessageBox.critical(None, "Ошибка", "Файл базы данных не найден.", QMessageBox.Ok)

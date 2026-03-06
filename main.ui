@@ -110,6 +110,13 @@
         </property>
        </widget>
       </item>
+      <item>
+       <widget class="QPushButton" name="btnRefresh">
+        <property name="text">
+         <string>Обновить</string>
+        </property>
+       </widget>
+      </item>
      </layout>
     </item>
     <item>

@@ -195,6 +195,7 @@ class MainWindow(QMainWindow):
         table.setColumnWidth(0, 120)
         table.horizontalHeader().setSectionResizeMode(1, QHeaderView.Stretch)
         table.verticalHeader().setDefaultSectionSize(100)
+        table.setAlternatingRowColors(True)
 
     def _apply_styles(self):
         title_font = QFont("Times New Roman", 14)

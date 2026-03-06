@@ -181,6 +181,7 @@ class LoginDialog(QDialog):
     def __init__(self, parent=None):
         super().__init__(parent)
         self.setWindowTitle("Вход")
+        self.resize(360, 220)
 
         layout = QVBoxLayout(self)
         form = QFormLayout()

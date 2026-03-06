@@ -278,6 +278,7 @@ class MainWindow(QMainWindow):
             label.setTextFormat(Qt.RichText)
             label.setWordWrap(True)
             table.setCellWidget(row_index, 1, label)
+        table.resizeRowsToContents()
 
     def _format_value(self, col_info, value):
         if value is None:

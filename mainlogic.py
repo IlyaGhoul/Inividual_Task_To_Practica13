@@ -181,6 +181,7 @@ class MainWindow(QMainWindow):
         self._apply_styles()
         self._set_logo()
         self._connect_actions()
+        self._apply_shortcuts()
         self._load_tables()
 
     def closeEvent(self, event):
@@ -201,6 +202,12 @@ class MainWindow(QMainWindow):
         title_font = QFont("Times New Roman", 14)
         title_font.setBold(True)
         self.ui.labelTitle.setFont(title_font)
+
+    def _apply_shortcuts(self):
+        self.ui.btnAdd.setShortcut("Ctrl+N")
+        self.ui.btnEdit.setShortcut("Ctrl+E")
+        self.ui.btnDelete.setShortcut("Del")
+        self.ui.btnRefresh.setShortcut("F5")
 
     def _set_logo(self):
         logo_path = IMAGES_DIR / "perfumery_01.png"
